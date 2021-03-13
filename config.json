@@ -1,6 +1,13 @@
 {
     "botToken": "",
     "prefix": "",
+
+    "PPClientID": "",
+    "PPSecret": "",
+    "paypalURL": "",
+
+    "color": "",
     "channel": "",
-    "paypalURL": ""
+    "description": "",
+    "costs": 0.00
 }
