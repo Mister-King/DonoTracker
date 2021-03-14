@@ -30,7 +30,7 @@ const buildEmbed = () => new Promise((resolve, reject) => {
                 .setColor(Settings.color)
                 .setTitle('CLICK HERE to donate with PayPal')
                 .setURL(Settings.paypalURL)
-                .setDescription(Settings.description)
+                .setDescription(`${Settings.description}\n\nGet past PayPal fees by making a friends & family transfer or message <@${client.channels.cache.get(Settings.channel).guild.ownerID}> directly.`)
                 .setThumbnail('https://github.com/Mister-King/DonoTracker/raw/master/images/icon.png')
                 .addFields(
                     { name: 'Running Costs', value: `**£${Settings.costs}** per month` },
@@ -69,7 +69,8 @@ const init = () => {
 
 // Once connected to Discord
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    client.user.setStatus('invisible');
+    console.log(`${new Date().toLocaleString()}: Logged in as ${client.user.tag}`);
     init();
 });
 
