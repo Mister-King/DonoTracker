@@ -48,7 +48,7 @@ const buildEmbed = () => new Promise((resolve, reject) => {
 });
 
 // Clear previous DonoTracker messages, create a new one,
-// and set up 60 second interval to update the message
+// and set up 15 minute interval to update the message
 const init = () => {
     const handleSend = isNew => {
         const communicate = isNew ? sendMessage : editMessage;
@@ -64,7 +64,7 @@ const init = () => {
 
     interval = setInterval(() => {
         handleSend();
-    }, 60000);
+    }, 60000 * 15);
 }
 
 // Once connected to Discord
