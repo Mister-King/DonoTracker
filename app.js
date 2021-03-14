@@ -37,7 +37,7 @@ const buildEmbed = () => new Promise((resolve, reject) => {
                     { name: ':moneybag: Donations This Month', value: progressBar(percentage, 100, 16) },
                 )
                 .setTimestamp()
-                .setFooter('DonoTracker | Donations take up to 3 hours to appear', 'https://github.com/Mister-King/DonoTracker/raw/master/images/icon.png');
+                .setFooter('DonoTracker | Meter takes up to 24 hours to update', 'https://github.com/Mister-King/DonoTracker/raw/master/images/icon.png');
 
             resolve(embed);
         })
