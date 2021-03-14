@@ -9,6 +9,7 @@
   "keywords": [],
   "author": "Jabin King <jabin@mister-king.co.uk>",
   "license": "MIT",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Mister-King/DonoTracker/issues"
   },

@@ -1,72 +1,13 @@
-require('./vendor/ProgressBar')
-const axios = require('axios');
-const qs = require('qs');
-const { Client, MessageEmbed } = require('discord.js');
-const Settings = require('./config.json');
+import './vendor/ProgressBar.js';
+import fs from 'fs';
+import { Client, MessageEmbed } from 'discord.js';
+import getTransactions from './utils/paypal.js';
+import { deleteMessages, sendMessage, editMessage } from './utils/messages.js';
 
+const Settings = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 const client = new Client();
-const apiURL = 'https://api-m.paypal.com';
 
-const getToken = () => new Promise((resolve, reject) => {
-    const config = {
-        method: 'post',
-        url: `${apiURL}/v1/oauth2/token`,
-        headers: { 
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        auth: {
-            username: Settings.PPClientID,
-            password: Settings.PPSecret
-        },
-        data: qs.stringify({'grant_type': 'client_credentials'})
-    };
-    
-    axios(config)
-        .then(response => {
-            resolve(response.data.access_token);
-        })
-        .catch(error => {
-            console.log(error);
-            reject(error);
-        });
-});
-
-const getTransactions = () => new Promise((resolve, reject) => {
-    getToken()
-        .then(token => {
-            const date = new Date();
-            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        
-            const config = {
-                method: 'get',
-                url: `${apiURL}/v1/reporting/transactions`,
-                params: {
-                    start_date: firstDay,
-                    end_date: lastDay
-                },
-                headers: { 
-                  'Accept': 'application/json', 
-                  'Authorization': `Bearer ${token}`, 
-                  'Content-Type': 'application/json'
-                }
-              };
-        
-              axios(config)
-                .then(response => {
-                    resolve(response.data.transaction_details);
-                })
-                .catch(error => {
-                    console.log(error);
-                    reject(error);
-                });
-
-        })
-        .catch(error => {
-            console.log(error);
-            reject(error);
-        });
-});
+let interval;
 
 const buildEmbed = () => new Promise((resolve, reject) => {
     const amounts = [];
@@ -74,7 +15,8 @@ const buildEmbed = () => new Promise((resolve, reject) => {
     getTransactions()
         .then(transactions => {
             transactions.forEach(transaction => {
-                amounts.push(transaction.transaction_info.transaction_amount.value);
+                const netAmount = transaction.transaction_info.transaction_amount.value - (transaction.transaction_info.fee_amount.value * -1) // Paypal prefixes fee value with a '-'
+                amounts.push(netAmount);
             });
 
             const amount = amounts.reduce((a, b) => a + b, 0);
@@ -95,7 +37,7 @@ const buildEmbed = () => new Promise((resolve, reject) => {
                     { name: ':moneybag: Donations This Month', value: progressBar(percentage, 100, 16) },
                 )
                 .setTimestamp()
-                .setFooter('DonoTracker', 'https://github.com/Mister-King/DonoTracker/raw/master/images/icon.png');
+                .setFooter('DonoTracker | Donations take up to 3 hours to appear', 'https://github.com/Mister-King/DonoTracker/raw/master/images/icon.png');
 
             resolve(embed);
         })
@@ -105,58 +47,33 @@ const buildEmbed = () => new Promise((resolve, reject) => {
         })
 });
 
-const deleteMessages = () => {
-    console.log('Deleting all DonoTracker messages...');
-    const channel = client.channels.cache.get(Settings.channel);
-
-    channel.messages.fetch()
-        .then(messages => {
-            const botMessages = [];
-            messages.filter(m => m.author.id === client.user.id).forEach(msg => botMessages.push(msg))
-            channel.bulkDelete(botMessages)
-                .then(() => console.log('Done deleting!'));
-        });
-}
-
-const editMessage = message => {
-    console.log('Editing DonoTracker message...');
-    const channel = client.channels.cache.get(Settings.channel);
+// Clear previous DonoTracker messages, create a new one,
+// and set up 60 second interval to update the message
+const init = () => {
+    const handleSend = isNew => {
+        const communicate = isNew ? sendMessage : editMessage;
     
-    channel.messages.fetch()
-    .then(messages => {
-        messages.find(m => m.author.id === client.user.id).edit(message)
-            .then(() => console.log('Done editing!'));
-    })
+        if (isNew) { deleteMessages(client); }
+        buildEmbed()
+            .then(embed => communicate(client, embed))
+            .catch(error => console.log(error));
+    }
+
+    const isNew = true;
+    handleSend(isNew);
+
+    interval = setInterval(() => {
+        handleSend();
+    }, 60000);
 }
 
-const sendMessage = message => {
-    console.log('Sending new DonoTracker message...');
-    const channel = client.channels.cache.get(Settings.channel);
-    channel.send(message)
-        .then(() => console.log('Done sending!'));
-}
-
-
+// Once connected to Discord
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
-
-    deleteMessages();
-    buildEmbed()
-        .then(embed => sendMessage(embed))
-        .catch(error => {
-            console.log(error);
-        });
-
-    setInterval(() => {
-        buildEmbed()
-            .then(embed => editMessage(embed))
-            .catch(error => {
-                console.log(error);
-            });
-    }, 60000);
+    init();
 });
 
-// Instead of reacting to a message, react to webhooks from paypal.
+// Reset app from a message
 client.on("message", function(message) { 
     if (message.author.bot) return;
     if (!message.content.startsWith(Settings.prefix)) return;
@@ -166,11 +83,8 @@ client.on("message", function(message) {
     const command = args.shift().toLowerCase();
 
     if (command === 'reset') {
-        buildEmbed()
-            .then(embed => editMessage(embed))
-            .catch(error => {
-                console.log(error);
-            });
+        clearInterval(interval);
+        init();
     }
 });
 
