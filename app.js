@@ -16,11 +16,11 @@ const buildEmbed = () => new Promise((resolve, reject) => {
         .then(transactions => {
             transactions.forEach(transaction => {
                 const transactionInfo = transaction.transaction_info;
-                let netAmount = 0;
+                const transactionValue = transactionInfo.transaction_amount.value;
+                let netAmount = transactionValue > 0 ? parseFloat(transactionValue) : 0;
 
-                // Outgoing bank transfers don't have a fee_amount
-                if (transactionInfo && transactionInfo.transaction_amount && transactionInfo.fee_amount) {
-                    netAmount = transactionInfo.transaction_amount.value - (transactionInfo.fee_amount.value * -1) // Paypal prefixes fee value with '-'
+                if (transactionInfo.fee_amount) {
+                    netAmount =  netAmount - (transactionInfo.fee_amount.value * -1) // Paypal prefixes fee value with '-'
                 }
 
                 amounts.push(netAmount);
