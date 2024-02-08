@@ -77,6 +77,7 @@ const init = () => {
 // Once connected to Discord
 client.on('ready', () => {
     client.user.setStatus('invisible');
+    console.log('---- Running ----');
     console.log(`${new Date().toLocaleString()}: Logged in as ${client.user.tag}`);
     init();
 });
