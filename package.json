@@ -1,7 +1,7 @@
 {
   "name": "DonoTracker",
   "description": "Paypal donation tracker for Discord",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Mister-King/DonoTracker.git"
@@ -19,8 +19,8 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "discord.js": "^12.5.1",
     "axios": "^1.6.7",
+    "discord.js": "^14.14.1",
     "qs": "^6.11.2"
   },
   "devDependencies": {

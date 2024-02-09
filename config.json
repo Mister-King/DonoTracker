@@ -1,6 +1,7 @@
 {
     "botToken": "",
-    "prefix": "",
+    "clientId": "",
+    "guildId": "",
 
     "PPClientID": "",
     "PPSecret": "",
