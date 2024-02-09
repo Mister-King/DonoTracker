@@ -19,9 +19,8 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "axios": "^0.21.1",
     "discord.js": "^12.5.1",
-    "fs": "0.0.1-security",
-    "qs": "^6.9.6"
+    "axios": "^1.6.7",
+    "qs": "^6.11.2"
   }
 }
