@@ -18,6 +18,13 @@ const buildEmbed = () => new Promise((resolve, reject) => {
 		.then(transactions => {
 			transactions.forEach(transaction => {
 				const transactionInfo = transaction.transaction_info;
+
+				// https://developer.paypal.com/docs/transaction-search/transaction-event-codes/
+				if (!transactionInfo.transaction_event_code.startsWith('T00') &&
+					!transactionInfo.transaction_event_code.startsWith('T05')) {
+					return;
+				}
+
 				const transactionValue = transactionInfo.transaction_amount.value;
 				let netAmount = transactionValue > 0 ? parseFloat(transactionValue) : 0;
 
