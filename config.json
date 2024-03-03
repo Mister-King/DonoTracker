@@ -1,14 +1,15 @@
 {
-    "botToken": "",
-    "clientId": "",
-    "guildId": "",
+    "botToken": "",    # Discord bot token
+    "clientId": "",    # Discord application ID
+    "guildId": "",     # Discord server ID
 
-    "PPClientID": "",
-    "PPSecret": "",
-    "paypalURL": "",
+    "PPClientID": "",  # PayPal Client ID
+    "PPSecret": "",    # PayPal Secret
+    "paypalURL": "",   # PayPal URL (customer send money page)
 
-    "color": "",
-    "channel": "",
-    "description": "",
-    "costs": 0.00
+    "color": "",       # Discord coloured strip
+    "channel": "",     # Discord channel to update
+    "description": "", # Embed description
+    "costs": 0.00,     # Costs/goal
+    "costsTitle": "Running Costs"    # Title for costs
 }
