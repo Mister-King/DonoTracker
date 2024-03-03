@@ -50,7 +50,7 @@ const buildEmbed = () => new Promise((resolve, reject) => {
 				.setDescription(Settings.description + '\n\u200B')
 				.setThumbnail('https://github.com/Mister-King/DonoTracker/raw/master/images/icon.png')
 				.addFields(
-					{ name: 'Running Costs', value: `**£${costsText}** per month\n\u200B` },
+					{ name: Settings.costsTitle, value: `**£${costsText}** per month\n\u200B` },
 					{ name: ':moneybag: Donations This Month', value: progressBar(percentage, 100, 16) },
 				)
 				.setTimestamp()
